@@ -1,67 +1,121 @@
-# Создаем пустую игровую доску 3x3
-board = [[" " for _ in range(3)] for _ in range(3)]
+import random
 
 
-# Функция для отображения игровой доски
-def display_board(board):
-    for row in board:
-        print(" ".join(row))
-        print("-" * 7)
+# Функция для создания игрового поля
+def create_board():
+    board = [[' ' for _ in range(6)] for _ in range(6)]
+    return board
 
 
-# Функция для проверки выигрышной комбинации
-def check_win(board, player):
-    # Проверяем выигрышные комбинации по горизонтали
-    for row in board:
-        if all(cell == player for cell in row):
-            return True
+# Функция для вывода игрового поля
+def print_board(board):
+    print('  |1| 2| 3| 4| 5| 6|  ')
+    for i in range(6):
+        print(str(i+1) + ' |' + ' |'.join(board[i]))
 
-    # Проверяем выигрышные комбинации по вертикали
-    for col in range(len(board[0])):
-        if all(board[row][col] == player for row in range(len(board))):
-            return True
 
-    # Проверяем выигрышные комбинации по диагоналям
-    if all(board[i][i] == player for i in range(len(board))):
-        return True
-    if all(board[i][len(board) - i - 1] == player for i in range(len(board))):
-        return True
+# Функция для размещения кораблей на игровом поле
+def place_ships(board):
+    ship_sizes = [3, 2, 2, 1, 1, 1, 1]
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
-    return False
+    for size in ship_sizes:
+        while True:
+            x = random.randint(1, 5)
+            y = random.randint(1, 5)
+            direction = random.choice(directions)
+
+            if x + (size - 1) * direction[0] not in range(6) or y + (size - 1) * direction[1] not in range(6):
+                continue
+
+            overlap = False
+            for i in range(size):
+                if board[x + i * direction[0]][y + i * direction[1]] != ' ':
+                    overlap = True
+                    break
+
+            if overlap:
+                continue
+
+            for i in range(size):
+                board[x + i * direction[0]][y + i * direction[1]] = '#'
+
+            break
 
 
 # Функция для осуществления хода игрока
-def make_move(board, player, row, col):
-    if board[row][col] == " ":
-        board[row][col] = player
-        return True
-    return False
-
-
-# Основной игровой цикл
-current_player = "x"
-while True:
-    # Отображаем игровую доску
-    display_board(board)
-
-    # Ход игрока
+def player_turn(board):
     while True:
-        row = int(input("Выберите номер строки (0-2): "))
-        col = int(input("Выберите номер столбца (0-2): "))
-        if make_move(board, current_player, row, col):
+        try:
+            x = int(input('Введите номер строки (от 1 до 6): '))
+            y = int(input('Введите номер столбца (от 1 до 6): '))
+
+            if x not in range(6) or y not in range(6) or board[x][y] in ['X', 'O']:
+                raise ValueError
+
             break
-        else:
-            print("Неверный ход. Попробуйте еще раз.")
+        except ValueError:
+            print('Ошибка! Попробуйте еще раз.')
 
-    # Проверяем выигрышную комбинацию
-    if check_win(board, current_player):
-        print("Игрок", current_player, "победил!")
+    if board[x][y] == '#':
+        board[x][y] = 'X'
+        print('Попадание!')
+    else:
+        board[x][y] = 'T'
+        print('Мимо.')
+
+
+# Функция для осуществления хода ИИ
+def ai_turn(board):
+    while True:
+        x = random.randint(1, 6)
+        y = random.randint(1, 6)
+
+        if board[x][y] in ['X', 'O']:
+            continue
+
         break
 
-    # Проверяем ничью
-    if all(cell != " " for row in board for cell in row):
-        print("Ничья!")
-        break
+    if board[x][y] == '#':
+        board[x][y] = 'X'
+        print('ИИ попал!')
+    else:
+        board[x][y] = '0'
+        print('ИИ мимо.')
 
-    # Переключаем игроков
-    current_player = "O" if current_player == "X" else "X"
+
+# Функция для проверки окончания игры
+def game_over(board):
+    for row in board:
+        if '#' in row:
+            return False
+
+    return True
+
+
+# Основная функция игры
+def play_game():
+    board = create_board()
+    place_ships(board)
+
+    while True:
+        print_board(board)
+        print('Ваш ход:')
+        player_turn(board)
+
+        if game_over(board):
+            print_board(board)
+            print('Вы победили!')
+            break
+
+        print('Ход ИИ:')
+        ai_turn(board)
+
+        if game_over(board):
+            print_board(board)
+            print('ИИ победил!')
+            break
+
+
+# Запуск игры
+play_game()
