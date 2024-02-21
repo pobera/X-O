@@ -11,7 +11,7 @@ def create_board():
 def print_board(board):
     print('  |1| 2| 3| 4| 5| 6|  ')
     for i in range(6):
-        print(str(i+1) + ' |' + ' |'.join(board[i]))
+        print(str(i+1) + ' |' + ' |'.join(board[i]) + '|')
 
 
 # Функция для размещения кораблей на игровом поле
@@ -21,8 +21,8 @@ def place_ships(board):
 
     for size in ship_sizes:
         while True:
-            x = random.randint(1, 5)
-            y = random.randint(1, 5)
+            x = random.randint(0, 5)
+            y = random.randint(0, 5)
             direction = random.choice(directions)
 
             if x + (size - 1) * direction[0] not in range(6) or y + (size - 1) * direction[1] not in range(6):
@@ -47,11 +47,12 @@ def place_ships(board):
 def player_turn(board):
     while True:
         try:
-            x = int(input('Введите номер строки (от 1 до 6): '))
-            y = int(input('Введите номер столбца (от 1 до 6): '))
+            x = int(input('Введите номер строки (от 1 до 6): ')) - 1
+            y = int(input('Введите номер столбца (от 1 до 6): ')) - 1
 
             if x not in range(6) or y not in range(6) or board[x][y] in ['X', 'O']:
-                raise ValueError
+                continue
+
 
             break
         except ValueError:
@@ -68,8 +69,8 @@ def player_turn(board):
 # Функция для осуществления хода ИИ
 def ai_turn(board):
     while True:
-        x = random.randint(1, 6)
-        y = random.randint(1, 6)
+        x = random.randint(0, 5)
+        y = random.randint(0, 5)
 
         if board[x][y] in ['X', 'O']:
             continue
